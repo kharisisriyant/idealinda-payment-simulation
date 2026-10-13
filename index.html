@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Interactive Idealinda payment fee and settlement simulator" />
+    <title>Idealinda · Payment Flow Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Idealinda payment simulator home" data-i18n-aria-label="homeAria">
+          <span class="brand-mark" aria-hidden="true">i</span>
+          <span>idealinda</span>
+        </a>
+        <div class="header-actions">
+          <label class="language-control"><span data-i18n="language">Language</span><select id="language-select" aria-label="Language" data-i18n-aria-label="language"><option value="en" data-i18n="english">English</option><option value="it" data-i18n="italian">Italiano</option></select></label>
+          <span class="prototype-badge"><span></span><span data-i18n="policyPrototype">Policy prototype</span></span>
+          <button class="reset-button" id="reset-button" type="button" data-i18n="resetScenario">Reset scenario</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <p class="eyebrow" data-i18n="eyebrow">Payment architecture · Simulation A</p>
+            <h1 data-i18n="heroTitle">See where every euro goes.</h1>
+            <p class="hero-copy" data-i18n="heroCopy">Adjust the service value, split, fees, and funding owner. The settlement and money flow update instantly.</p>
+          </div>
+          <div class="hero-total" aria-live="polite">
+            <span data-i18n="clientPays">Client pays</span>
+            <strong id="hero-client-charge">€47.00</strong>
+            <small id="hero-charge-note">after €3.00 redeemed credit</small>
+          </div>
+        </section>
+
+        <section class="workspace">
+          <aside class="controls-panel" aria-label="Simulation controls" data-i18n-aria-label="controlsAria">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker" data-i18n="configure">Configure</p>
+                <h2 data-i18n="scenarioInputs">Scenario inputs</h2>
+              </div>
+              <span class="live-pill" data-i18n="live">Live</span>
+            </div>
+
+            <div class="control-section">
+              <div class="control-section-title"><span>01</span><h3 data-i18n="serviceValue">Service value</h3></div>
+              <div class="field-grid two-columns">
+                <label class="field">
+                  <span data-i18n="hourlyTier">Hourly tier</span>
+                  <span class="input-shell"><span>€</span><input id="hourly-rate" type="number" min="0" step="0.5" value="25" /></span>
+                </label>
+                <label class="field">
+                  <span data-i18n="billableHours">Billable hours</span>
+                  <span class="input-shell"><input id="hours" type="number" min="0" step="0.25" value="2" /><span data-i18n="hoursUnit">hrs</span></span>
+                </label>
+              </div>
+              <div class="computed-row"><span data-i18n="grossService">Gross service</span><strong id="gross-service-control">€50.00</strong></div>
+            </div>
+
+            <div class="control-section">
+              <div class="control-section-title"><span>02</span><h3 data-i18n="revenueSplit">Revenue split</h3></div>
+              <div class="derived-share worker-accent">
+                <div><span data-i18n="workerShare">Worker share</span><strong id="worker-share-output">80%</strong></div>
+                <small data-i18n="workerShareFormula">Calculated as 100% − company fee − platform fee</small>
+              </div>
+              <div class="range-field company-accent">
+                <div><label for="company-share" data-i18n="companyFee">Company fee</label><output id="company-share-output">20%</output></div>
+                <input id="company-share" type="range" min="0" max="100" step="1" value="20" />
+              </div>
+              <div class="range-field platform-accent">
+                <div><label for="platform-share" data-i18n="platformFee">Platform fee</label><output id="platform-share-output">0%</output></div>
+                <input id="platform-share" type="range" min="0" max="100" step="0.5" value="0" />
+              </div>
+              <p class="field-help" id="split-help">Company + platform = 20%. Worker receives the remaining 80%.</p>
+            </div>
+
+            <div class="control-section">
+              <div class="control-section-title"><span>03</span><h3 data-i18n="feesRewards">Fees & rewards</h3></div>
+              <div class="cost-list">
+                <div class="cost-row">
+                  <label for="discount"><span data-i18n="redeemedCredit">Redeemed credit</span> <button class="info-dot" type="button" aria-label="Credit earned from a prior eligible payment" title="Credit earned from a prior eligible payment" data-i18n-aria-label="redeemedCreditInfo" data-i18n-title="redeemedCreditInfo">i</button></label>
+                  <span class="compact-input"><span>€</span><input id="discount" type="number" min="0" step="0.5" value="3" /></span>
+                  <label class="select-label"><span data-i18n="paidFrom">Paid from</span><select id="discount-owner"><option value="company" data-i18n="company">Company</option><option value="platform" data-i18n="platform">Platform</option><option value="worker" data-i18n="worker">Worker</option></select></label>
+                </div>
+                <div class="cost-row">
+                  <label><span data-i18n="stripeFee">Stripe fee</span> <button class="info-dot" type="button" aria-label="Calculated as 2.9% of the client payment plus 30 cents" title="Calculated as 2.9% of the client payment plus 30 cents" data-i18n-aria-label="stripeFeeInfo" data-i18n-title="stripeFeeInfo">i</button></label>
+                  <output class="compact-output" id="stripe-fee-output">€1.66</output>
+                  <label class="select-label"><span data-i18n="paidFrom">Paid from</span><select id="stripe-owner"><option value="company" data-i18n="company">Company</option><option value="platform" data-i18n="platform">Platform</option><option value="worker" data-i18n="worker">Worker</option></select></label>
+                </div>
+                <div class="cost-row">
+                  <label for="cashback-rate" data-i18n="newCashback">New cashback</label>
+                  <span class="compact-input"><input id="cashback-rate" type="number" min="0" max="100" step="0.5" value="5" /><span>%</span></span>
+                  <label class="select-label"><span data-i18n="paidFrom">Paid from</span><select id="cashback-owner"><option value="company" data-i18n="company">Company</option><option value="platform" data-i18n="platform">Platform</option><option value="worker" data-i18n="worker">Worker</option></select></label>
+                </div>
+                <div class="cost-row">
+                  <label for="bonus-rate"><span data-i18n="workerBonus">Worker bonus</span> <button class="info-dot" type="button" aria-label="Calculated as bonus percentage × worker gross bucket. The 5% default is still awaiting production approval." title="Calculated as bonus percentage × worker gross bucket. The 5% default is still awaiting production approval." data-i18n-aria-label="workerBonusInfo" data-i18n-title="workerBonusInfo">i</button></label>
+                  <span class="compact-input"><input id="bonus-rate" type="number" min="0" max="100" step="0.5" value="5" /><span>%</span></span>
+                  <label class="select-label"><span data-i18n="paidFrom">Paid from</span><select id="bonus-owner"><option value="company" data-i18n="company">Company</option><option value="platform" data-i18n="platform">Platform</option><option value="worker" data-i18n="worker">Worker</option></select></label>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <section class="results-panel" aria-label="Live simulation results" data-i18n-aria-label="resultsAria">
+            <div id="warning-banner" class="warning-banner" role="alert" hidden></div>
+            <div class="result-header">
+              <div>
+                <p class="section-kicker" data-i18n="liveAllocation">Live allocation</p>
+                <h2 data-i18n="settlementFlow">Settlement flow</h2>
+              </div>
+              <div class="reconcile-chip" id="reconcile-chip"><span>✓</span> Reconciled to €0.00</div>
+            </div>
+
+            <div class="stage-card charge-stage">
+              <div class="stage-label"><span>1</span><div><strong data-i18n="clientCharge">Client charge</strong><small data-i18n="paymentCaption">What appears on the payment</small></div></div>
+              <div class="charge-equation">
+                <div class="equation-item"><small data-i18n="grossService">Gross service</small><strong id="charge-gross">€50.00</strong></div>
+                <span class="operator">−</span>
+                <div class="equation-item discount"><small data-i18n="redeemedCredit">Redeemed credit</small><strong id="charge-discount">€3.00</strong></div>
+                <span class="operator">=</span>
+                <div class="equation-item total"><small data-i18n="clientCharged">Client charged</small><strong id="charge-total">€47.00</strong></div>
+              </div>
+            </div>
+
+            <div class="stage-card sankey-stage">
+              <div class="stage-label"><span>2</span><div><strong data-i18n="successfulSettlement">Successful settlement</strong><small data-i18n="settlementCaption">After Stripe confirms the final payment fee</small></div></div>
+              <div class="sankey-wrap" id="sankey-wrap">
+                <svg id="sankey-svg" viewBox="0 0 1100 520" role="img" aria-labelledby="sankey-title sankey-description">
+                  <title id="sankey-title" data-i18n="sankeyTitle">Payment settlement Sankey diagram</title>
+                  <desc id="sankey-description" data-i18n="sankeyDescription">Money flows from the client payment into worker, company, and platform buckets, then from each bucket to its settlement and assigned fees or rewards.</desc>
+                  <defs>
+                    <linearGradient id="flow-worker" x1="0" x2="1"><stop stop-color="#dce7ff"/><stop offset="1" stop-color="#5d83e7"/></linearGradient>
+                    <linearGradient id="flow-company" x1="0" x2="1"><stop stop-color="#e4eafa"/><stop offset="1" stop-color="#7b8bad"/></linearGradient>
+                    <linearGradient id="flow-platform" x1="0" x2="1"><stop stop-color="#d9f2ec"/><stop offset="1" stop-color="#4fae94"/></linearGradient>
+                    <linearGradient id="flow-fee" x1="0" x2="1"><stop stop-color="#ffe6df"/><stop offset="1" stop-color="#f47b61"/></linearGradient>
+                    <linearGradient id="flow-reward" x1="0" x2="1"><stop stop-color="#f0e8ff"/><stop offset="1" stop-color="#9a78df"/></linearGradient>
+                  </defs>
+                  <g id="sankey-flows"></g>
+                  <g id="sankey-nodes"></g>
+                </svg>
+              </div>
+              <div class="legend" aria-hidden="true"><span><i class="worker-dot"></i><span data-i18n="worker">Worker</span></span><span><i class="company-dot"></i><span data-i18n="company">Company</span></span><span><i class="platform-dot"></i><span data-i18n="platform">Platform</span></span><span><i class="fee-dot"></i><span data-i18n="fees">Fees</span></span><span><i class="reward-dot"></i><span data-i18n="rewards">Rewards</span></span></div>
+            </div>
+
+            <div class="party-grid" id="party-grid"></div>
+
+            <details class="formula-details">
+              <summary><span data-i18n="formulaAssumptions">Formula & assumptions</span><span class="summary-action" data-i18n="viewCalculation">View calculation</span></summary>
+              <div class="formula-content">
+                <code data-i18n="workerFormula">worker share = 100% − company fee − platform fee</code>
+                <code data-i18n="clientFormula">client charge = gross service − redeemed credit</code>
+                <code data-i18n="stripeFormula">Stripe fee = 2.9% × client charge + €0.30</code>
+                <code data-i18n="bonusFormula">worker bonus = bonus rate × worker gross bucket</code>
+                <code data-i18n="netFormula">party net = gross entitlement − assigned costs</code>
+                <p id="policy-summary"></p>
+                <p><strong data-i18n="important">Important:</strong> <span data-i18n="processingNote">rewards are created only after a final successful payment. A SEPA payment still processing produces no transfer, cashback, or bonus.</span></p>
+              </div>
+            </details>
+          </section>
+        </section>
+      </main>
+      <footer><span data-i18n="footerName">Idealinda payment policy lab</span><span data-i18n="footerNote">Scenario values only · No Stripe actions are performed</span></footer>
+    </div>
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
